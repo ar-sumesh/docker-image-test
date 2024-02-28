@@ -1,0 +1,41 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE = 'jinamat629/jenkins-docker-image:latest'
+    }
+    stage('Clone Repository') {
+            steps {
+                // Clean workspace before cloning (optional)
+                deleteDir()
+
+                // Clone the Git repository
+                git branch: 'main',
+                    url: 'https://github.com/ar-sumesh/docker-image-test.git'
+
+                sh "ls -lart"
+            }
+        }
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    // Build the Docker image
+                    sh "docker build -t ${DOCKER_IMAGE} ."
+                }
+            }
+        }
+        stage('Push') {
+            steps {
+                script {
+                    // Authenticate with Docker Hub
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials-id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                        sh "docker login -u ${DOCKERHUB_USERNAME} -p ${DOCKERHUB_PASSWORD}"
+                    }
+                    // Push the Docker image to Docker Hub
+                    sh "docker push ${DOCKER_IMAGE}"
+                }
+            }
+        }
+    }
+}
