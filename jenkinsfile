@@ -4,7 +4,9 @@ pipeline {
     environment {
         DOCKER_IMAGE = 'jinamat629/jenkins-docker-image:latest'
     }
-    stage('Clone Repository') {
+    
+    stages {
+        stage('Clone Repository') {
             steps {
                 // Clean workspace before cloning (optional)
                 deleteDir()
@@ -16,7 +18,6 @@ pipeline {
                 sh "ls -lart"
             }
         }
-    stages {
         stage('Build') {
             steps {
                 script {
